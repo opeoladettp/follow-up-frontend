@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { Newspaper, RefreshCw, Sparkles, ChevronRight, Filter, Search, X, Calendar, Tag } from 'lucide-react'
 import { api } from '../services/api'
 
@@ -74,21 +74,9 @@ export default function HeadlinesBrowser({ onSelectHeadline, cachedHeadlines, on
       )
     }
 
-    // Source filter — match headline source against feed name (loose match for Twitter)
+    // Source filter — headline.source is set to the DB feed name by the backend
     if (selectedSource !== 'all') {
-      const feed = feeds.find(f => f.name === selectedSource)
-      filtered = filtered.filter(h => {
-        if (!feed) return h.source === selectedSource
-        // Direct name match
-        if (h.source === feed.name) return true
-        // Twitter: source contains the feed name or handle
-        const handle = feed.url.includes('/twitter/user/')
-          ? feed.url.split('/twitter/user/')[1]
-          : null
-        if (handle && h.source.toLowerCase().includes(handle.toLowerCase())) return true
-        // Fallback: source contains feed name
-        return h.source.toLowerCase().includes(feed.name.toLowerCase())
-      })
+      filtered = filtered.filter(h => h.source === selectedSource)
     }
 
     // Date filter
@@ -150,10 +138,8 @@ export default function HeadlinesBrowser({ onSelectHeadline, cachedHeadlines, on
   const hasActiveFilters = searchQuery || selectedSource !== 'all' || dateFilter !== 'all' || sortBy !== 'date-desc'
 
   // Build source options from DB feeds only — use feed name as label
-  // Map: display label → match function against headline.source
   const feedSourceOptions = feeds.map(f => ({
     label: f.name,
-    // For Twitter feeds, match by handle; for RSS, match by feed name
     value: f.name,
   }))
   const allSources = ['all', ...feedSourceOptions.map(f => f.label)]
